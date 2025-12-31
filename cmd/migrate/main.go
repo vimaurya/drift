@@ -3,18 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/vimaurya/gomigrate/internal/driver"
 	"log"
 	"os"
+
+	"github.com/vimaurya/gomigrate/internal/driver"
+	"github.com/vimaurya/gomigrate/internal/migration"
 )
 
 // postgres://postgres:root@localhost:5432/test_db?sslmode=disable
 func main() {
-	upCmd := flag.NewFlagSet("up", flag.ExitOnError)
-
-	upURL := upCmd.String("url", "", "Database URL")
-
-	if len(os.Args) < 2 {
+		if len(os.Args) < 2 {
 		fmt.Println("Usage: migrate <command> [options]")
 		fmt.Println("Commands: up, create")
 		os.Exit(1)
@@ -22,6 +20,10 @@ func main() {
 
 	switch os.Args[1] {
 	case "up":
+		upCmd := flag.NewFlagSet("up", flag.ExitOnError)
+
+		upURL := upCmd.String("url", "", "Database URL")
+
 		upCmd.Parse(os.Args[2:])
 		if *upURL == "" {
 			log.Fatal("database url is required")
@@ -33,7 +35,7 @@ func main() {
 		}
 		defer nDriver.Close()
 		fmt.Println("fetched driver successfully")
-
+		
 		err = nDriver.Init()
 
 		fmt.Println("initializing table..")
@@ -42,7 +44,23 @@ func main() {
 		}
 
 		fmt.Println("Database initialized successfully.")
+	
+	case "create":
+		createCmd := flag.NewFlagSet("create", flag.ExitOnError)
+		nameFlag := createCmd.String("name", "", "Name of the migration")
+		pathFlag := createCmd.String("path", "", "Directory where migrations are saved")
+		
+		createCmd.Parse(os.Args[2:])
 
+		if *nameFlag == ""{
+			log.Fatal("name of the migration can not be empty")
+		}
+
+		err := migration.Create(*nameFlag, *pathFlag)
+		if err!=nil{
+			log.Fatal("failed to create the migration file")
+		}
+	
 	default:
 		fmt.Printf("Unknown command: %s\n", os.Args[1])
 
