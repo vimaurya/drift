@@ -7,7 +7,7 @@ type MigrationRecord struct {
 
 type Driver interface {
 	Init() error
-	GetAppliedMigrations() ([]MigrationRecord, error)
+	GetAppliedMigrations() (map[int64]string, error)
 	Apply(version int64, name, checksum, sql string) error
 	Close() 
 }

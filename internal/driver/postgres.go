@@ -3,6 +3,7 @@ package driver
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -49,12 +50,62 @@ func (p *PostgresDriver) Close() {
 // To-do 
 // Implement GetAppliedMigrations and Apply
 
-func (p *PostgresDriver) GetAppliedMigrations() ([]MigrationRecord, error) {
-	var migrationRecord []MigrationRecord
+func (p *PostgresDriver) GetAppliedMigrations() (map[int64]string, error) {
+	var migrationRecord = make(map[int64]string)
+	
+	tx, err := p.db.Begin()
+
+	query := `
+		SELECT version from schema_migrations order by version ASC;
+	`
+  
+	rows, err := tx.Query(query)
+	if err!=nil{
+		return nil, err
+	}
+	
+	defer rows.Close()
+
+	for rows.Next() {
+		var record MigrationRecord
+		err := rows.Scan(
+			&record.Checksum,
+			&record.Version,
+			)
+
+		if err!=nil{
+			return nil, fmt.Errorf("failed to fetch applied migrations : %w", err)
+		}
+
+		migrationRecord[record.Version] = record.Checksum
+	}
 
 	return migrationRecord, nil
 }
 
-func (p *PostgresDriver) Apply(version int64, name, checksum, sql string) error{
-	return nil
+func (p *PostgresDriver) Apply(version int64, name, checksum, sqlContent string) error{
+	tx, err := p.db.Begin()
+	if err!=nil{
+		return err
+	}
+	
+	if _, err := tx.Exec(sqlContent); err!=nil{
+		tx.Rollback()
+		return fmt.Errorf("failed to execute migration %s: %w", name, err)
+	}
+
+	query := `
+		INSERT INTO schema_migrations (version, name, checksum)
+		VALUES ($1, $2, $3)
+	`
+
+	if _, err := tx.Exec(query, version, name, checksum); err!=nil{
+		tx.Rollback()
+		return fmt.Errorf("failed to log migration to schema_migrations : %w", err)
+	}
+
+	return tx.Commit()
 }
+
+	
+
