@@ -47,11 +47,9 @@ func main() {
 			log.Fatalf("failed to fetch driver : %v", err)
 		}
 		defer nDriver.Close()
-		fmt.Println("fetched driver successfully")
 		
 		err = nDriver.Init()
 
-		fmt.Println("initializing table..")
 		if err != nil {
 			log.Fatalf("failed to init table : %v", err)
 		}
@@ -79,7 +77,7 @@ func main() {
 		upCmd.Parse(os.Args[2:])
 		err := core.RunUp()
 		if err!=nil{
-			log.Fatalf("failed to make migration(s) : %w", err)
+			log.Fatalf("failed to make migration(s) : %v", err)
 		}
 		
 		fmt.Println("successfully made all migartions")

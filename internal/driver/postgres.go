@@ -56,7 +56,7 @@ func (p *PostgresDriver) GetAppliedMigrations() (map[int64]string, error) {
 	tx, err := p.db.Begin()
 
 	query := `
-		SELECT version from schema_migrations order by version ASC;
+	SELECT version, checksum from schema_migrations order by version ASC;
 	`
   
 	rows, err := tx.Query(query)
@@ -69,12 +69,12 @@ func (p *PostgresDriver) GetAppliedMigrations() (map[int64]string, error) {
 	for rows.Next() {
 		var record MigrationRecord
 		err := rows.Scan(
-			&record.Checksum,
 			&record.Version,
+			&record.Checksum,
 			)
 
 		if err!=nil{
-			return nil, fmt.Errorf("failed to fetch applied migrations : %w", err)
+			return nil, err
 		}
 
 		migrationRecord[record.Version] = record.Checksum

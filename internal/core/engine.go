@@ -11,7 +11,6 @@ import (
 	"github.com/vimaurya/gomigrate/internal/config"
 	"github.com/vimaurya/gomigrate/internal/driver"
 	"github.com/vimaurya/gomigrate/migrations"
-	"golang.org/x/tools/go/cfg"
 )
 
 
@@ -27,13 +26,18 @@ func RunUp() error {
 	if err!=nil{
 		return fmt.Errorf("failed to Unmarshal : %w", err)
 	}
+	
+	d, err := driver.GetDriver(cfg.DatabaseURL)
+	if err!=nil{
+		return fmt.Errorf("failed to get driver : %w", err)
+	}
 
 	appliedMigrations, err := d.GetAppliedMigrations()
 	if err!=nil{
 		return fmt.Errorf("failed to fetch applied migrations : %w", err)
 	}
 
-	availableMigrations, err := migrations.GetAvailableMigrations(migrationDir)
+	availableMigrations, err := migrations.GetAvailableMigrations(cfg.Dir)
 	if err!=nil{
 		return fmt.Errorf("failed to fetch available migrations : %w", err)
 	}
@@ -47,8 +51,11 @@ func RunUp() error {
 		}
 		name := strings.TrimSuffix(parts[1], ".up.sql")
 
-		sqlContent, err := os.ReadFile(filepath.Join(migrationDir, fileName))
-
+		sqlContent, err := os.ReadFile(filepath.Join(cfg.Dir, fileName))
+		if err!=nil{
+			return fmt.Errorf("could not read migration(s) : %s", fileName)
+		}
+		
     currentChecksum := calculateCheckSum(string(sqlContent))
 
 		checksum, exists := appliedMigrations[version]
