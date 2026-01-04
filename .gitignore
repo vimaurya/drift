@@ -1,0 +1,4 @@
+/DB_Migrations/
+migrate
+migrate.exe
+.gomigrate.json

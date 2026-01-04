@@ -10,10 +10,8 @@ func GetDriver(connURL string) (Driver, error) {
 	if err!=nil {
 		return nil, err
 	}
-	fmt.Println("this is url : ", connURL, " this is u : ", u)
 	switch u.Scheme {
 	case "postgres", "postgresql":
-		fmt.Println("calling nw")
 		return NewPostgresDriver(connURL)
 	default:
 		return nil, fmt.Errorf("unsupported database: %s", u.Scheme)	
