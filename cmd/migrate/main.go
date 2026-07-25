@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	"github.com/vimaurya/gomigrate/internal/config"
-	"github.com/vimaurya/gomigrate/internal/core"
-	"github.com/vimaurya/gomigrate/internal/driver"
-	"github.com/vimaurya/gomigrate/internal/migration"
+	"github.com/Di-Argus/Drift/internal/config"
+	"github.com/Di-Argus/Drift/internal/driver"
+	"github.com/Di-Argus/Drift/internal/migration"
+	"github.com/Di-Argus/Drift/internal/core"
 )
 
 // postgres://postgres:root@localhost:5432/test_db?sslmode=disable

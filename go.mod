@@ -1,4 +1,4 @@
-module github.com/vimaurya/gomigrate
+module github.com/Di-Argus/Drift
 
 go 1.24.1
 
