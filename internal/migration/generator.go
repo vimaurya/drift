@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/vimaurya/gomigrate/internal/config"
+	"github.com/Di-Argus/Drift/internal/config"
 )
 
 func Create(name string) error {

@@ -6,10 +6,9 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	"github.com/vimaurya/gomigrate/internal/config"
-	"github.com/vimaurya/gomigrate/internal/driver"
-	"github.com/vimaurya/gomigrate/migrations"
+	"github.com/Di-Argus/Drift/internal/config"
+	"github.com/Di-Argus/Drift/internal/driver"
+	"github.com/Di-Argus/Drift/internal/migration"
 )
 
 func RunUp() error {
@@ -28,7 +27,7 @@ func RunUp() error {
 		return fmt.Errorf("failed to fetch applied migrations : %w", err)
 	}
 
-	availableMigrations, err := migrations.GetAvailableMigrations(cfg.Dir)
+	availableMigrations, err := migration.GetAvailableMigrations(cfg.Dir)
 	if err != nil {
 		return fmt.Errorf("failed to fetch available migrations : %w", err)
 	}
@@ -80,7 +79,7 @@ func RunDown() error {
 		return fmt.Errorf("failed to fetch applied migrations : %w", err)
 	}
 
-	availableMigrations, err := migrations.GetAvailableDownMigrations(cfg.Dir)
+	availableMigrations, err := migration.GetAvailableDownMigrations(cfg.Dir)
 	if err != nil {
 		return fmt.Errorf("failed to fetch available migrations : %w", err)
 	}
