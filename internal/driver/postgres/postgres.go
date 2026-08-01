@@ -3,7 +3,7 @@ package driver
 import (
 	"database/sql"
 	_ "github.com/lib/pq"
-	"github.com/vimaurya/gomigrate/internal/driver"
+	"github.com/Di-Argus/Drift/internal/driver"
 )
 
 type PostgresDriver struct {
