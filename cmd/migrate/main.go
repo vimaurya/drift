@@ -9,6 +9,7 @@ import (
 	"github.com/Di-Argus/Drift/internal/driver"
 	"github.com/Di-Argus/Drift/internal/migration"
 	"github.com/Di-Argus/Drift/internal/core"
+	_ "github.com/Di-Argus/Drift/internal/driver/postgres"
 )
 
 // postgres://postgres:root@localhost:5432/test_db?sslmode=disable
@@ -48,7 +49,7 @@ func main() {
 		}
 		defer nDriver.Close()
 
-		err = nDriver.Init()
+		err = nDriver.InitializeMigrations()
 		if err != nil {
 			log.Fatalf("failed to init table : %v", err)
 		}
