@@ -4,32 +4,81 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/Di-Argus/Drift/internal/driver"
+	"github.com/go-sql-driver/mysql"
 )
 
 type MySqlDriver struct {
 	db *sql.DB
 }
 
-func NewMySQLDriver(url string) (*MySqlDriver, error) {
-	db, err := sql.Open("mysql", url)
+func init(){
+	driver.DriverRegister("mysql", New)
+}
+
+func New(connURL string) (driver.Driver, error) {
+	rawDSN := strings.TrimPrefix(connURL, "mysql://")
+
+	// If user passed standard host format like "user:pass@127.0.0.1:3306/db",
+	// convert it to MySQL's native "user:pass@tcp(127.0.0.1:3306)/db"
+	if !strings.Contains(rawDSN, "@tcp(") && strings.Contains(rawDSN, "@") {
+		parts := strings.SplitN(rawDSN, "@", 2)
+		userPass := parts[0]
+		rest := parts[1] 
+
+		slashIdx := strings.Index(rest, "/")
+		if slashIdx != -1 {
+			addr := rest[:slashIdx]
+			dbName := rest[slashIdx:]
+			rawDSN = fmt.Sprintf("%s@tcp(%s)%s", userPass, addr, dbName)
+		}
+	}
+
+	// Now parse with the official driver parser
+	cfg, err := mysql.ParseDSN(rawDSN)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open mysql connection: %w", err)
+		return nil, fmt.Errorf("mysql: failed to parse DSN (%s): %w", rawDSN, err)
+	}
+
+	// Enable multi-statements for migrations
+	cfg.MultiStatements = true
+
+	db, err := sql.Open("mysql", cfg.FormatDSN())
+	if err != nil {
+		return nil, fmt.Errorf("mysql: failed to open connection: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
-		return nil, fmt.Errorf("failed to ping mysql: %w", err)
+		db.Close()
+		return nil, fmt.Errorf("mysql: ping failed: %w", err)
 	}
 
 	return &MySqlDriver{db: db}, nil
 }
 
-func (m *MySqlDriver) Init() error {
+// func NewMySQLDriver(url string) (*MySqlDriver, error) {
+// 	db, err := sql.Open("mysql", url)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to open mysql connection: %w", err)
+// 	}
+//
+// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+// 	defer cancel()
+//
+// 	if err := db.PingContext(ctx); err != nil {
+// 		return nil, fmt.Errorf("failed to ping mysql: %w", err)
+// 	}
+//
+// 	return &MySqlDriver{db: db}, nil
+// }
+
+func (m *MySqlDriver) InitializeMigrations() error {
 	query := `
 		CREATE TABLE IF NOT EXISTS schema_migrations (
 			version BIGINT PRIMARY KEY,

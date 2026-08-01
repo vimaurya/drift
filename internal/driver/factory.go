@@ -1,8 +1,8 @@
 package driver
 
 import (
-	"database/sql"
-	"net/url"
+	"fmt"
+	"strings"
 )
 
 // func GetDriver(connURL string) (Driver, error) {
@@ -19,17 +19,14 @@ import (
 // }
 
 func GetDriver(connURL string) (Driver, error) {
-	connurl, err:= url.Parse(connURL)
-	if err!=nil{
-		return nil, err 
+	parts := strings.SplitN(connURL, "://", 2)
+	if len(parts) < 2 {
+		return nil, fmt.Errorf("invalid connection url format (missing scheme '://')")
 	}
+	
+	scheme := parts[0]
 
-	db, err := sql.Open(connurl.Scheme, connURL)
-	if err!=nil{
-		return nil, err
-	}
-
-	driver, err := getdbDriver(connurl.Scheme, db)
+	driver, err := getdbDriver(scheme)
 	if err!=nil{
 		return nil, err
 	}
