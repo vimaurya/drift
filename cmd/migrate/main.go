@@ -10,6 +10,9 @@ import (
 	"github.com/vimaurya/gomigrate/internal/core"
 	"github.com/vimaurya/gomigrate/internal/driver"
 	"github.com/vimaurya/gomigrate/internal/migration"
+
+	// Blank import for driver register
+	_ "github.com/vimaurya/gomigrate/internal/driver/postgres"
 )
 
 // postgres://postgres:root@localhost:5432/test_db?sslmode=disable
@@ -49,7 +52,7 @@ func main() {
 		}
 		defer nDriver.Close()
 
-		err = nDriver.Init()
+		err = nDriver.InitializeMigrations()
 		if err != nil {
 			log.Fatalf("failed to init table : %v", err)
 		}

@@ -1,36 +1,24 @@
 package driver
 
 import (
-	"context"
 	"database/sql"
-	"fmt"
-	"time"
-
 	_ "github.com/lib/pq"
+	"github.com/vimaurya/gomigrate/internal/driver"
 )
 
 type PostgresDriver struct {
 	db *sql.DB
 }
 
-func NewPostgresDriver(url string) (*PostgresDriver, error) {
-	db, err := sql.Open("postgres", url)
-	if err != nil {
-		return nil, err
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := db.PingContext(ctx); err != nil {
-		return nil, err
-	}
-
-	return &PostgresDriver{
-		db: db,
-	}, nil
+func init(){
+	driver.DriverRegister("postgres", New)
 }
 
-func (p *PostgresDriver) Init() error {
+func New(db *sql.DB) (driver.Driver, error){
+	return &PostgresDriver{db:db}, nil
+}
+
+func (p *PostgresDriver) InitializeMigrations() error {
 	query := `
 		CREATE TABLE IF NOT EXISTS schema_migrations (
 			version BIGINT PRIMARY KEY,
@@ -64,7 +52,7 @@ func (p *PostgresDriver) GetAppliedMigrations() (map[int64]string, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var record MigrationRecord
+		var record driver.MigrationRecord
 		err := rows.Scan(
 			&record.Version,
 			&record.Checksum,
@@ -87,7 +75,7 @@ func (p *PostgresDriver) Apply(version int64, name, checksum, sqlContent string)
 
 	if _, err := tx.Exec(sqlContent); err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to execute migration %s: %w", name, err)
+		return err 	
 	}
 
 	query := `
@@ -97,7 +85,7 @@ func (p *PostgresDriver) Apply(version int64, name, checksum, sqlContent string)
 
 	if _, err := tx.Exec(query, version, name, checksum); err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to log migration to schema_migrations : %w", err)
+		return err
 	}
 
 	return tx.Commit()
@@ -111,7 +99,7 @@ func (p *PostgresDriver) Down(version int64, sqlContent string) error {
 
 	if _, err := tx.Exec(sqlContent); err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to rollback migration version %d: %w", version, err)
+		return err
 	}
 
 	query := `
@@ -119,7 +107,7 @@ func (p *PostgresDriver) Down(version int64, sqlContent string) error {
 	`
 	if _, err := tx.Exec(query, version); err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to delete migration log from schema_migrations : %w", err)
+		return err
 	}
 
 	return tx.Commit()
