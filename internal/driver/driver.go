@@ -11,7 +11,7 @@ type MigrationRecord struct {
 }
 
 var (
-	mu sync.Mutex
+	mu      sync.Mutex
 	drivers = make(map[string]factory)
 )
 
@@ -23,36 +23,34 @@ type Driver interface {
 	Close()
 }
 
-type factory func(connURL string) (Driver, error) 
+type factory func(connURL string) (Driver, error)
 
 func DriverRegister(name string, factory factory) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	if factory==nil{
+	if factory == nil {
 		panic("drift/driver : Register factory nil")
 	}
-	if _, dup := drivers[name]; dup{
-		panic("drift/driver : Register called twice for driver "+name)
+	if _, dup := drivers[name]; dup {
+		panic("drift/driver : Register called twice for driver " + name)
 	}
 
 	drivers[name] = factory
 }
 
-
 func getdbDriver(driverName string, connUrl string) (Driver, error) {
-	if driverName=="postgresql"{
+	if driverName == "postgresql" {
 		driverName = "postgres"
 	}
-	
+
 	mu.Lock()
 	factory, ok := drivers[driverName]
 	mu.Unlock()
 
-	if !ok{
+	if !ok {
 		return nil, fmt.Errorf("driver/dirft : unknown driver %q (forgotten import ?)", driverName)
 	}
 
 	return factory(connUrl)
 }
-

@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/Di-Argus/Drift/internal/config"
+	"github.com/Di-Argus/Drift/internal/core"
 	"github.com/Di-Argus/Drift/internal/driver"
 	"github.com/Di-Argus/Drift/internal/migration"
-	"github.com/Di-Argus/Drift/internal/core"
-	"fmt"
 )
 
 func runInit(args []string) error {
@@ -42,7 +42,7 @@ func runInit(args []string) error {
 	}
 
 	fmt.Println("Database initialized successfully.")
-	
+
 	return nil
 }
 
@@ -61,27 +61,48 @@ func runCreate(args []string) error {
 		return fmt.Errorf("failed to create the migration file")
 	}
 	fmt.Println("successfully created the migration files.")
-	
+
 	return nil
 }
 
 func runUp(args []string) error {
 	upCmd := flag.NewFlagSet("up", flag.ExitOnError)
 	upCmd.Parse(args)
-	err := core.RunUp()
+
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load config : %w", err)
+	}
+
+	d, err := driver.GetDriver(cfg.DatabaseURL)
+	if err != nil {
+		return fmt.Errorf("failed to get driver : %w", err)
+	}
+	err = core.RunUp(cfg, d)
 	if err != nil {
 		return fmt.Errorf("failed to make migration(s) : %v", err)
 	}
 
 	fmt.Println("successfully made all migartions")
-	
+
 	return nil
 }
 
 func runDown(args []string) error {
 	downCmd := flag.NewFlagSet("down", flag.ExitOnError)
 	downCmd.Parse(args)
-	err := core.RunDown()
+
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load config : %w", err)
+	}
+
+	d, err := driver.GetDriver(cfg.DatabaseURL)
+	if err != nil {
+		return fmt.Errorf("failed to get driver : %w", err)
+	}
+
+	err = core.RunDown(cfg, d)
 	if err != nil {
 		return fmt.Errorf("failed to down migration(s) : %v", err)
 	}
