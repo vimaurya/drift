@@ -15,7 +15,7 @@ type MySqlDriver struct {
 	db *sql.DB
 }
 
-func init(){
+func init() {
 	driver.DriverRegister("mysql", New)
 }
 

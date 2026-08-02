@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/Di-Argus/Drift/internal/driver/mysql"
+	_ "github.com/Di-Argus/Drift/internal/driver/postgres"
 	"log"
 	"os"
-	_ "github.com/Di-Argus/Drift/internal/driver/postgres"
-	_ "github.com/Di-Argus/Drift/internal/driver/mysql"
 )
 
 // postgres://postgres:root@localhost:5432/test_db?sslmode=disable
@@ -16,15 +16,15 @@ func main() {
 		fmt.Println("Commands: init, create, up, down")
 		os.Exit(1)
 	}
-	
+
 	command := os.Args[1]
 	args := os.Args[2:]
-	var err error 
+	var err error
 	switch command {
 	case "init":
 		err = runInit(args)
 	case "create":
-		err = runCreate(args)	
+		err = runCreate(args)
 	case "up":
 		err = runUp(args)
 	case "down":
@@ -35,7 +35,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err!=nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 }

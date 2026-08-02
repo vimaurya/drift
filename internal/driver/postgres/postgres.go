@@ -3,20 +3,20 @@ package driver
 import (
 	"context"
 	"database/sql"
-	"time"
 	"github.com/Di-Argus/Drift/internal/driver"
 	_ "github.com/lib/pq"
+	"time"
 )
 
 type PostgresDriver struct {
 	db *sql.DB
 }
 
-func init(){
+func init() {
 	driver.DriverRegister("postgres", New)
 }
 
-func New(connURL string) (driver.Driver, error){
+func New(connURL string) (driver.Driver, error) {
 	db, err := sql.Open("postgres", connURL)
 	if err != nil {
 		return nil, err
@@ -27,10 +27,10 @@ func New(connURL string) (driver.Driver, error){
 
 	if err := db.PingContext(ctx); err != nil {
 		db.Close()
-		return nil, err 
+		return nil, err
 	}
 
-	return &PostgresDriver{db:db}, nil
+	return &PostgresDriver{db: db}, nil
 }
 
 func (p *PostgresDriver) InitializeMigrations() error {
@@ -90,7 +90,7 @@ func (p *PostgresDriver) Apply(version int64, name, checksum, sqlContent string)
 
 	if _, err := tx.Exec(sqlContent); err != nil {
 		tx.Rollback()
-		return err 	
+		return err
 	}
 
 	query := `

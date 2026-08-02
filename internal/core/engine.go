@@ -2,26 +2,16 @@ package core
 
 import (
 	"fmt"
+	"github.com/Di-Argus/Drift/internal/config"
+	"github.com/Di-Argus/Drift/internal/driver"
+	"github.com/Di-Argus/Drift/internal/migration"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"github.com/Di-Argus/Drift/internal/config"
-	"github.com/Di-Argus/Drift/internal/driver"
-	"github.com/Di-Argus/Drift/internal/migration"
 )
 
-func RunUp() error {
-	cfg, err := config.Load()
-	if err != nil {
-		return fmt.Errorf("failed to load config : %w", err)
-	}
-
-	d, err := driver.GetDriver(cfg.DatabaseURL)
-	if err != nil {
-		return fmt.Errorf("failed to get driver : %w", err)
-	}
-
+func RunUp(cfg config.Config, d driver.Driver) error {
 	appliedMigrations, err := d.GetAppliedMigrations()
 	if err != nil {
 		return fmt.Errorf("failed to fetch applied migrations : %w", err)
@@ -63,17 +53,7 @@ func RunUp() error {
 	return nil
 }
 
-func RunDown() error {
-	cfg, err := config.Load()
-	if err != nil {
-		return fmt.Errorf("failed to load config : %w", err)
-	}
-
-	d, err := driver.GetDriver(cfg.DatabaseURL)
-	if err != nil {
-		return fmt.Errorf("failed to get driver : %w", err)
-	}
-
+func RunDown(cfg config.Config, d driver.Driver) error {
 	appliedMigrations, err := d.GetAppliedMigrations()
 	if err != nil {
 		return fmt.Errorf("failed to fetch applied migrations : %w", err)

@@ -20,32 +20,32 @@ import (
 // }
 
 type connectionUrl struct {
-	scheme string 
-	url string
+	scheme string
+	url    string
 }
 
 func GetDriver(connURL string) (Driver, error) {
 	connectionURL, err := formatConnURL(connURL)
 
 	driver, err := getdbDriver(connectionURL.scheme, connectionURL.url)
-	if err!=nil{
+	if err != nil {
 		return nil, err
 	}
-	
+
 	return driver, nil
 }
 
-// Standard Drift URL format is : 
+// Standard Drift URL format is :
 // scheme://username:passowrd@host:port/database?queryparam=something
 
 // mysql://root:vikash@tcp(127.0.0.1:3306)/test_db
 // mysql://root:vikash@localhost:3306/test_db
-func formatConnURL(connUrl string) (connectionUrl, error){
-	parsedUrl, err := url.Parse(connUrl)	
-	if err!=nil{
+func formatConnURL(connUrl string) (connectionUrl, error) {
+	parsedUrl, err := url.Parse(connUrl)
+	if err != nil {
 		return connectionUrl{}, err
 	}
-	
+
 	conn := &connectionUrl{}
 
 	scheme := parsedUrl.Scheme
@@ -59,27 +59,26 @@ func formatConnURL(connUrl string) (connectionUrl, error){
 
 	// fmt.Printf("user : %s\npassword : %s\nhost : %s\n", user, password, host)
 	// fmt.Printf("database : %s\nquery : %s\n", database, query)
-	
-	var connectionString string
-	
 
-	if scheme == "postgres"{
+	var connectionString string
+
+	if scheme == "postgres" {
 		connectionString = fmt.Sprintf("%s://%s:%s@%s/%s", scheme, user, password, host, database)
-		if query!=""{
-			connectionString += "?"+query
+		if query != "" {
+			connectionString += "?" + query
 		}
 	} else if scheme == "mysql" {
-			connectionString = fmt.Sprintf("%s://%s:%s@tcp(%s)/%s", scheme, user, password, host, database)	
+		connectionString = fmt.Sprintf("%s://%s:%s@tcp(%s)/%s", scheme, user, password, host, database)
 	}
-	
+
 	conn.scheme = scheme
 	conn.url = connectionString
 
 	return *conn, nil
 }
 
-func cleanString(dirtyString string) string{
-	clString,_ := strings.CutPrefix(dirtyString, ":")	
+func cleanString(dirtyString string) string {
+	clString, _ := strings.CutPrefix(dirtyString, ":")
 	clString, _ = strings.CutSuffix(clString, ":")
 	clString, _ = strings.CutPrefix(clString, "/")
 	clString, _ = strings.CutSuffix(clString, "/")
