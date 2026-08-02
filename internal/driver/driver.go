@@ -56,4 +56,3 @@ func getdbDriver(driverName string, connUrl string) (Driver, error) {
 	return factory(connUrl)
 }
 
-
