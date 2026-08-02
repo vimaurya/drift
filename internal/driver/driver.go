@@ -1,11 +1,8 @@
 package driver
 
 import (
-	"database/sql"
 	"fmt"
 	"sync"
-	"context"
-	"time"
 )
 
 type MigrationRecord struct {
@@ -26,7 +23,7 @@ type Driver interface {
 	Close()
 }
 
-type factory func(db *sql.DB) (Driver, error) 
+type factory func(connURL string) (Driver, error) 
 
 func DriverRegister(name string, factory factory) {
 	mu.Lock()
@@ -43,7 +40,11 @@ func DriverRegister(name string, factory factory) {
 }
 
 
-func getdbDriver(driverName string, db *sql.DB) (Driver, error) {
+func getdbDriver(driverName string, connUrl string) (Driver, error) {
+	if driverName=="postgresql"{
+		driverName = "postgres"
+	}
+	
 	mu.Lock()
 	factory, ok := drivers[driverName]
 	mu.Unlock()
@@ -52,14 +53,7 @@ func getdbDriver(driverName string, db *sql.DB) (Driver, error) {
 		return nil, fmt.Errorf("driver/dirft : unknown driver %q (forgotten import ?)", driverName)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := db.PingContext(ctx); err != nil {
-		return nil, err
-	}
-
-	return factory(db)
+	return factory(connUrl)
 }
 
 

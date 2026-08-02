@@ -1,9 +1,11 @@
 package driver
 
 import (
+	"context"
 	"database/sql"
-	_ "github.com/lib/pq"
+	"time"
 	"github.com/Di-Argus/Drift/internal/driver"
+	_ "github.com/lib/pq"
 )
 
 type PostgresDriver struct {
@@ -14,7 +16,20 @@ func init(){
 	driver.DriverRegister("postgres", New)
 }
 
-func New(db *sql.DB) (driver.Driver, error){
+func New(connURL string) (driver.Driver, error){
+	db, err := sql.Open("postgres", connURL)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := db.PingContext(ctx); err != nil {
+		db.Close()
+		return nil, err 
+	}
+
 	return &PostgresDriver{db:db}, nil
 }
 

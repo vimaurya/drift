@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/Di-Argus/Drift/internal/driver"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -13,23 +15,46 @@ type MySqlDriver struct {
 	db *sql.DB
 }
 
-func NewMySQLDriver(url string) (*MySqlDriver, error) {
-	db, err := sql.Open("mysql", url)
+func init(){
+	driver.DriverRegister("mysql", New)
+}
+
+func New(connURL string) (driver.Driver, error) {
+	dsn := strings.TrimPrefix(connURL, "mysql://")
+
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open mysql connection: %w", err)
+		return nil, fmt.Errorf("mysql: failed to open connection: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
-		return nil, fmt.Errorf("failed to ping mysql: %w", err)
+		db.Close()
+		return nil, fmt.Errorf("mysql: ping failed: %w", err)
 	}
 
 	return &MySqlDriver{db: db}, nil
 }
 
-func (m *MySqlDriver) Init() error {
+// func NewMySQLDriver(url string) (*MySqlDriver, error) {
+// 	db, err := sql.Open("mysql", url)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to open mysql connection: %w", err)
+// 	}
+//
+// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+// 	defer cancel()
+//
+// 	if err := db.PingContext(ctx); err != nil {
+// 		return nil, fmt.Errorf("failed to ping mysql: %w", err)
+// 	}
+//
+// 	return &MySqlDriver{db: db}, nil
+// }
+
+func (m *MySqlDriver) InitializeMigrations() error {
 	query := `
 		CREATE TABLE IF NOT EXISTS schema_migrations (
 			version BIGINT PRIMARY KEY,

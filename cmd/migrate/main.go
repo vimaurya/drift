@@ -10,6 +10,7 @@ import (
 	"github.com/Di-Argus/Drift/internal/migration"
 	"github.com/Di-Argus/Drift/internal/core"
 	_ "github.com/Di-Argus/Drift/internal/driver/postgres"
+	_ "github.com/Di-Argus/Drift/internal/driver/mysql"
 )
 
 // postgres://postgres:root@localhost:5432/test_db?sslmode=disable

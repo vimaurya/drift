@@ -1,8 +1,10 @@
 package driver
 
 import (
-	"database/sql"
+	"fmt"
 	"net/url"
+	"strings"
+
 )
 
 // func GetDriver(connURL string) (Driver, error) {
@@ -19,20 +21,38 @@ import (
 // }
 
 func GetDriver(connURL string) (Driver, error) {
-	connurl, err:= url.Parse(connURL)
-	if err!=nil{
-		return nil, err 
+	parts := strings.SplitN(connURL, "://", 2)	
+	if len(parts) > 2 {
+		return nil, fmt.Errorf("Some err")
 	}
-
-	db, err := sql.Open(connurl.Scheme, connURL)
-	if err!=nil{
-		return nil, err
-	}
-
-	driver, err := getdbDriver(connurl.Scheme, db)
+	
+	driver, err := getdbDriver(parts[0], connURL)
 	if err!=nil{
 		return nil, err
 	}
+	
+	formatConnURL(connURL)
 
 	return driver, nil
+}
+
+func formatConnURL(connUrl string) (string, error){
+	parsedUrl, err := url.Parse(connUrl)	
+	if err!=nil{
+		return "", err
+	}
+	
+	fmt.Printf("inside formatting\n")
+	scheme := parsedUrl.Scheme
+	if scheme == "postgres"{
+		user := parsedUrl.User.Username()
+		password, _ := parsedUrl.User.Password()
+		host := parsedUrl.Host
+		database := parsedUrl.Path
+		query := parsedUrl.RawQuery
+		fmt.Printf("user : %s\npassword : %s\nhost : %s\n", user, password, host)
+		fmt.Printf("database : %s\nquery : %s\n", database, query)
+	}
+
+	return "", nil
 }
