@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Di-Argus/Drift/internal/driver"
-	"github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type MySqlDriver struct {
@@ -20,33 +20,9 @@ func init(){
 }
 
 func New(connURL string) (driver.Driver, error) {
-	rawDSN := strings.TrimPrefix(connURL, "mysql://")
+	dsn := strings.TrimPrefix(connURL, "mysql://")
 
-	// If user passed standard host format like "user:pass@127.0.0.1:3306/db",
-	// convert it to MySQL's native "user:pass@tcp(127.0.0.1:3306)/db"
-	if !strings.Contains(rawDSN, "@tcp(") && strings.Contains(rawDSN, "@") {
-		parts := strings.SplitN(rawDSN, "@", 2)
-		userPass := parts[0]
-		rest := parts[1] 
-
-		slashIdx := strings.Index(rest, "/")
-		if slashIdx != -1 {
-			addr := rest[:slashIdx]
-			dbName := rest[slashIdx:]
-			rawDSN = fmt.Sprintf("%s@tcp(%s)%s", userPass, addr, dbName)
-		}
-	}
-
-	// Now parse with the official driver parser
-	cfg, err := mysql.ParseDSN(rawDSN)
-	if err != nil {
-		return nil, fmt.Errorf("mysql: failed to parse DSN (%s): %w", rawDSN, err)
-	}
-
-	// Enable multi-statements for migrations
-	cfg.MultiStatements = true
-
-	db, err := sql.Open("mysql", cfg.FormatDSN())
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("mysql: failed to open connection: %w", err)
 	}

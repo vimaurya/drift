@@ -40,7 +40,7 @@ func DriverRegister(name string, factory factory) {
 }
 
 
-func getdbDriver(driverName string) (Driver, error) {
+func getdbDriver(driverName string, connUrl string) (Driver, error) {
 	if driverName=="postgresql"{
 		driverName = "postgres"
 	}
@@ -53,7 +53,7 @@ func getdbDriver(driverName string) (Driver, error) {
 		return nil, fmt.Errorf("driver/dirft : unknown driver %q (forgotten import ?)", driverName)
 	}
 
-	return factory(driverName)
+	return factory(connUrl)
 }
 
 
