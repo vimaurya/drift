@@ -1,14 +1,9 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
-	"github.com/Di-Argus/Drift/internal/config"
-	"github.com/Di-Argus/Drift/internal/driver"
-	"github.com/Di-Argus/Drift/internal/migration"
-	"github.com/Di-Argus/Drift/internal/core"
 	_ "github.com/Di-Argus/Drift/internal/driver/postgres"
 	_ "github.com/Di-Argus/Drift/internal/driver/mysql"
 )
@@ -21,83 +16,26 @@ func main() {
 		fmt.Println("Commands: init, create, up, down")
 		os.Exit(1)
 	}
-
-	switch os.Args[1] {
+	
+	command := os.Args[1]
+	args := os.Args[2:]
+	var err error 
+	switch command {
 	case "init":
-		initCmd := flag.NewFlagSet("init", flag.ExitOnError)
-
-		initURL := initCmd.String("url", "", "Database URL")
-		pathFlag := initCmd.String("path", "DB_Migrations", "Directory where migrations are saved")
-
-		initCmd.Parse(os.Args[2:])
-		if *initURL == "" {
-			log.Fatal("database url is required")
-		}
-
-		cfg := config.Config{
-			DatabaseURL: *initURL,
-			Dir:         *pathFlag,
-		}
-
-		err := config.Save(cfg)
-		if err != nil {
-			log.Fatalf("fialed to save config : %v", err)
-		}
-
-		nDriver, err := driver.GetDriver(*initURL)
-		if err != nil {
-			log.Fatalf("failed to fetch driver : %v", err)
-		}
-		defer nDriver.Close()
-
-		err = nDriver.InitializeMigrations()
-		if err != nil {
-			log.Fatalf("failed to init table : %v", err)
-		}
-
-		fmt.Println("Database initialized successfully.")
-
+		err = runInit(args)
 	case "create":
-		createCmd := flag.NewFlagSet("create", flag.ExitOnError)
-		nameFlag := createCmd.String("name", "", "Name of the migration")
-
-		createCmd.Parse(os.Args[2:])
-
-		if *nameFlag == "" {
-			log.Fatal("name of the migration can not be empty")
-		}
-
-		err := migration.Create(*nameFlag)
-		if err != nil {
-			log.Fatal("failed to create the migration file")
-		}
-		fmt.Println("successfully created the migration files.")
-
+		err = runCreate(args)	
 	case "up":
-		upCmd := flag.NewFlagSet("up", flag.ExitOnError)
-		upCmd.Parse(os.Args[2:])
-		err := core.RunUp()
-		if err != nil {
-			log.Fatalf("failed to make migration(s) : %v", err)
-		}
-
-		fmt.Println("successfully made all migartions")
-
+		err = runUp(args)
 	case "down":
-		downCmd := flag.NewFlagSet("down", flag.ExitOnError)
-		downCmd.Parse(os.Args[2:])
-		err := core.RunDown()
-		if err != nil {
-			log.Fatalf("failed to down migration(s) : %v", err)
-		}
-
+		err = runDown(args)
 	default:
-		fmt.Printf("Unknown command: %s\n", os.Args[1])
-		fmt.Println("\nUsage: migrate <command> [options]")
-		fmt.Println("Commands:")
-		fmt.Println("  init   - Initialize configuration and database")
-		fmt.Println("  create - Create a new migration file")
-		fmt.Println("  up     - Apply pending migrations")
-		fmt.Println("  down   - Roll back the last migration")
+		fmt.Printf("Unknown command: %s\n\n", command)
+		printUsage()
+		os.Exit(1)
+	}
+
+	if err!=nil{
+		log.Fatal(err)
 	}
 }
