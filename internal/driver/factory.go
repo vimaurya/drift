@@ -26,7 +26,7 @@ type connectionUrl struct {
 
 func GetDriver(connURL string) (Driver, error) {
 	connectionURL, err := formatConnURL(connURL)
-	if err!=nil{
+	if err != nil {
 		return nil, err
 	}
 
