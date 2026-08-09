@@ -36,7 +36,7 @@ func RunUp(cfg config.Config, d driver.Driver) error {
 			return fmt.Errorf("could not read migration(s) : %s", fileName)
 		}
 
-		currentChecksum := calculateCheckSum(string(sqlContent))
+		currentChecksum := CalculateCheckSum(string(sqlContent))
 
 		checksum, exists := appliedMigrations[version]
 
@@ -83,7 +83,7 @@ func RunDown(cfg config.Config, d driver.Driver) error {
 			if err != nil {
 				return fmt.Errorf("failed to check up migration for version : %d", version)
 			}
-			if calculateCheckSum(string(upContent)) != checksum {
+			if CalculateCheckSum(string(upContent)) != checksum {
 				return fmt.Errorf("integrity error : upfile %s was edited. can not safely rollback", upFileName)
 			}
 

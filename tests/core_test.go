@@ -180,3 +180,75 @@ func TestRunUp_ApplyFailure(t *testing.T) {
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "syntax error")
 }
+
+func TestRunDown_Success(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	upFile := filepath.Join(tmpDir, "20260301000000_create_users_table.up.sql")
+	downFile := filepath.Join(tmpDir, "20260301000000_create_users_table.down.sql")
+	
+	upContent := []byte("CREATE TABLE users (id INT);")
+	downContent := []byte("DROP TABLE users;")
+
+	assert.NoError(t, os.WriteFile(upFile, upContent, 0644))
+	assert.NoError(t, os.WriteFile(downFile, downContent, 0644))
+
+	cfg := config.Config{Dir: tmpDir}
+	
+	downCalled := false 
+
+	mockDrv := &MockDriver{
+		GetAppliedMigrationsFunc: func() (map[int64]string, error) {
+			return map[int64]string{
+				20260301000000: core.CalculateCheckSum(string(upContent)),
+			}, nil
+		},
+
+		DownFunc: func(version int64, sql string) error {
+			downCalled = true
+			assert.Equal(t, int64(20260301000000), version)
+			assert.Equal(t, "DROP TABLE users;", sql)
+			return nil
+		},	
+	}
+
+	err := core.RunDown(cfg, mockDrv)
+	assert.NoError(t, err)
+	assert.True(t, downCalled, "expected down driver method to be called")
+}
+
+func TestRunDown_NoMigrations(t *testing.T) {
+	tmpDir := t.TempDir() 
+	cfg := config.Config{Dir: tmpDir}
+
+	mockDrv := &MockDriver{
+		GetAppliedMigrationsFunc: func() (map[int64]string, error) {
+			return map[int64]string{20260301000000:"some_checksum"}, nil
+		},
+	}
+
+	err := core.RunDown(cfg, mockDrv)
+	assert.NoError(t, err, "expected no error as there are no migration files")
+}
+
+func TestRunDown_IntegrityError(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	upFile := filepath.Join(tmpDir, "20260301000000_create_users_table.up.sql")
+	downFile := filepath.Join(tmpDir, "20260301000000_create_users_table.down.sql")
+
+	assert.NoError(t, os.WriteFile(upFile, []byte("CREATE TABLE users (id INT);"), 0644))
+	assert.NoError(t, os.WriteFile(downFile, []byte("DROP TABLE users;"), 0644))
+
+	cfg := config.Config{Dir: tmpDir}
+
+	mockDrv := &MockDriver{
+		GetAppliedMigrationsFunc: func() (map[int64]string, error) {
+			return map[int64]string{20260301000000: "tampered_checksum_value"}, nil
+		},
+	}
+
+	err := core.RunDown(cfg, mockDrv)
+	assert.Error(t, err, "expected an integrity error because the up migration file was modified")
+	assert.Contains(t, err.Error(), "integrity error")
+}
