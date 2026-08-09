@@ -26,11 +26,11 @@ type connectionUrl struct {
 
 func GetDriver(connURL string) (Driver, error) {
 	connectionURL, err := formatConnURL(connURL)
-
-	driver, err := getdbDriver(connectionURL.scheme, connectionURL.url)
 	if err != nil {
 		return nil, err
 	}
+
+	driver, err := getdbDriver(connectionURL.scheme, connectionURL.url)
 
 	return driver, nil
 }
