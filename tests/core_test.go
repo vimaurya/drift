@@ -186,7 +186,7 @@ func TestRunDown_Success(t *testing.T) {
 
 	upFile := filepath.Join(tmpDir, "20260301000000_create_users_table.up.sql")
 	downFile := filepath.Join(tmpDir, "20260301000000_create_users_table.down.sql")
-	
+
 	upContent := []byte("CREATE TABLE users (id INT);")
 	downContent := []byte("DROP TABLE users;")
 
@@ -194,8 +194,8 @@ func TestRunDown_Success(t *testing.T) {
 	assert.NoError(t, os.WriteFile(downFile, downContent, 0644))
 
 	cfg := config.Config{Dir: tmpDir}
-	
-	downCalled := false 
+
+	downCalled := false
 
 	mockDrv := &MockDriver{
 		GetAppliedMigrationsFunc: func() (map[int64]string, error) {
@@ -209,7 +209,7 @@ func TestRunDown_Success(t *testing.T) {
 			assert.Equal(t, int64(20260301000000), version)
 			assert.Equal(t, "DROP TABLE users;", sql)
 			return nil
-		},	
+		},
 	}
 
 	err := core.RunDown(cfg, mockDrv)
@@ -218,12 +218,12 @@ func TestRunDown_Success(t *testing.T) {
 }
 
 func TestRunDown_NoMigrations(t *testing.T) {
-	tmpDir := t.TempDir() 
+	tmpDir := t.TempDir()
 	cfg := config.Config{Dir: tmpDir}
 
 	mockDrv := &MockDriver{
 		GetAppliedMigrationsFunc: func() (map[int64]string, error) {
-			return map[int64]string{20260301000000:"some_checksum"}, nil
+			return map[int64]string{20260301000000: "some_checksum"}, nil
 		},
 	}
 
