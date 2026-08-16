@@ -2,9 +2,9 @@ package core
 
 import (
 	"fmt"
-	"github.com/Di-Argus/Drift/internal/config"
-	"github.com/Di-Argus/Drift/internal/driver"
-	"github.com/Di-Argus/Drift/internal/migration"
+	"github.com/Di-Argus/Drift/pkg/config"
+	"github.com/Di-Argus/Drift/pkg/driver"
+	"github.com/Di-Argus/Drift/pkg/migration"
 	"os"
 	"path/filepath"
 	"strconv"

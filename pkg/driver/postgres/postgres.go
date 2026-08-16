@@ -3,7 +3,7 @@ package driver
 import (
 	"context"
 	"database/sql"
-	"github.com/Di-Argus/Drift/internal/driver"
+	"github.com/Di-Argus/Drift/pkg/driver"
 	_ "github.com/lib/pq"
 	"time"
 )
