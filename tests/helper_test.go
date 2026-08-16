@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Di-Argus/Drift/internal/driver"
-	_ "github.com/Di-Argus/Drift/internal/driver/mysql"
-	_ "github.com/Di-Argus/Drift/internal/driver/postgres"
+	"github.com/Di-Argus/Drift/pkg/driver"
+	_ "github.com/Di-Argus/Drift/pkg/driver/mysql"
+	_ "github.com/Di-Argus/Drift/pkg/driver/postgres"
 	"github.com/stretchr/testify/assert"
 )
 

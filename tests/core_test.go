@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/Di-Argus/Drift/internal/config"
-	"github.com/Di-Argus/Drift/internal/core"
+	"github.com/Di-Argus/Drift/pkg/config"
+	"github.com/Di-Argus/Drift/pkg/core"
 	"github.com/stretchr/testify/assert"
 )
 
