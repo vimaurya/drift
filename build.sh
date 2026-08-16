@@ -6,12 +6,12 @@ SRC="./cmd/migrate/"
 
 echo "Building binaries..."
 
-GOOS=linux GOARCH=amd64 go build -o dist/linux-amd64/drift $SRC
+GOOS=linux GOARCH=amd64 go build -o dist/drift-linux-amd64 $SRC
 
-GOOS=windows GOARCH=amd64 go build -o dist/windows-amd64/drift.exe $SRC
+GOOS=windows GOARCH=amd64 go build -o dist/drift-windows-amd64.exe $SRC
 
-GOOS=darwin GOARCH=amd64 go build -o dist/darwin-amd64/drift $SRC
+GOOS=darwin GOARCH=amd64 go build -o dist/drift-darwin-amd64 $SRC
 
-GOOS=darwin GOARCH=arm64 go build -o dist/darwin-arm64/drift $SRC
+GOOS=darwin GOARCH=arm64 go build -o dist/drift-darwin-arm64 $SRC
 
 echo "Done! Check the /dist folder."
