@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Di-Argus/Drift/pkg/driver"
-	_ "github.com/Di-Argus/Drift/pkg/driver/postgres"
+	"github.com/di-argus/drift/pkg/driver"
+	_ "github.com/di-argus/drift/pkg/driver/postgres"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"

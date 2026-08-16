@@ -1,4 +1,4 @@
-module github.com/Di-Argus/Drift
+module github.com/di-argus/drift
 
 go 1.25.0
 

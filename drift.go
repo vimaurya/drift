@@ -3,9 +3,9 @@ package drift
 import (
 	"log"
 
-	"github.com/Di-Argus/Drift/pkg/config"
-	"github.com/Di-Argus/Drift/pkg/core"
-	"github.com/Di-Argus/Drift/pkg/driver"
+	"github.com/di-argus/drift/pkg/config"
+	"github.com/di-argus/drift/pkg/core"
+	"github.com/di-argus/drift/pkg/driver"
 )
 
 type Migrator struct{

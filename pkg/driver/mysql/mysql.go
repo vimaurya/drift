@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Di-Argus/Drift/pkg/driver"
+	"github.com/di-argus/drift/pkg/driver"
 	_ "github.com/go-sql-driver/mysql"
 )
 

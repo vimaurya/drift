@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"testing"
-	"github.com/Di-Argus/Drift"
-	"github.com/Di-Argus/Drift/pkg/config"
+	"github.com/di-argus/drift"
+	"github.com/di-argus/drift/pkg/config"
 )
 
 

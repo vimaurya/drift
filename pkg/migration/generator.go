@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Di-Argus/Drift/pkg/config"
+	"github.com/di-argus/drift/pkg/config"
 )
 
 func Create(name string) error {
