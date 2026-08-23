@@ -3,14 +3,18 @@ package drift
 import (
 	"log"
 
-	"github.com/di-argus/drift/pkg/config"
-	"github.com/di-argus/drift/pkg/core"
-	"github.com/di-argus/drift/pkg/driver"
+	"github.com/di-argus/drift/internal/config"
+	"github.com/di-argus/drift/internal/core"
+	"github.com/di-argus/drift/internal/driver"
 )
 
 type Migrator struct{
 	Config *config.Config
 	Driver driver.Driver
+}
+
+func Init() error {
+	return nil
 }
 
 func (u *Migrator) RunUp() error {
