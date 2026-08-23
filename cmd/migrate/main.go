@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	_ "github.com/Di-Argus/Drift/pkg/driver/mysql"
-	_ "github.com/Di-Argus/Drift/pkg/driver/postgres"
+	_ "github.com/di-argus/drift/pkg/driver/mysql"
+	_ "github.com/di-argus/drift/pkg/driver/postgres"
 	"log"
 	"os"
 )

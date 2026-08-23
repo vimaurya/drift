@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/Di-Argus/Drift/pkg/config"
-	"github.com/Di-Argus/Drift/pkg/core"
-	"github.com/Di-Argus/Drift/pkg/driver"
-	"github.com/Di-Argus/Drift/pkg/migration"
+	"github.com/di-argus/drift/pkg/config"
+	"github.com/di-argus/drift/pkg/core"
+	"github.com/di-argus/drift/pkg/driver"
+	"github.com/di-argus/drift/pkg/migration"
 )
 
 func runInit(args []string) error {
